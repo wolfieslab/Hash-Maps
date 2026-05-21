@@ -54,13 +54,27 @@ class HashMap {
         }
     }
 
+    get(key) {
+        const index = this.hash(key);
+        if(index < 0 || index >= this.buckets.length) {
+            throw new Error("Trying to access index out of bounds");
+        }
+
+        let current = this.buckets[index];
+        while(current !== null) {
+            if(current.value.key === key) return current.value.value;
+            current = current.next;
+        }
+
+        return null;
+    }
+
     has(key) {
         const index = this.hash(key);
         if(index < 0 || index >= this.buckets.length) {
             throw new Error("Trying to access index out of bounds");
         }
         let current = this.buckets[index];
-        if(current === null) return false;
 
         while(current !== null) {
             if(current.value.key === key) return true;
@@ -69,15 +83,86 @@ class HashMap {
 
         return false;
     }
+
+    remove(key) {
+        const index = this.hash(key);
+        if(index < 0 || index >= this.buckets.length) {
+            throw new Error("Trying to access index out of bounds");
+        }
+        let current = this.buckets[index];
+        let previous = null;
+
+        while(current !== null) {
+            if(current.value.key === key) {
+                if(previous === null) {
+                    this.buckets[index] = current.next;
+                }
+                else {
+                    previous.next = current.next;
+                }
+                
+                this.size--;
+                return true;
+            }
+
+            previous = current;
+            current = current.next;
+        }
+
+        return false;
+    }
+
+    length() {
+        return this.size;
+    }
+
+    clear() {
+        this.buckets = new Array(this.capacity).fill(null);
+        this.size = 0;
+    }
+
+    keys() {
+        const keyArray = [];
+
+        for (let i = 0; i < this.buckets.length; i++) {
+            let current = this.buckets[i];
+
+            while(current !== null) {
+                keyArray.push(current.value.key);
+                current = current.next;
+            }
+        }
+
+        return keyArray;
+    }
+
+    values() {
+        const valueArray = [];
+
+        for(let i = 0; i < this.buckets.length; i++) {
+            let current = this.buckets[i];
+
+            while(current !== null) {
+                valueArray.push(current.value.value);
+                current = current.next;
+            }
+        }
+
+        return valueArray;
+    }
+
+    entries() {
+        const entriesArray = [];
+
+        for(let i = 0; i < this.buckets.length; i++) {
+            let current = this.buckets[i];
+
+            while(current !== null) {
+                entriesArray.push([current.value.key, current.value.value]);
+                current = current.next;
+            }
+        }
+
+        return entriesArray
+    }
 }
-
-const hashTest = new HashMap();
-
-console.log(hashTest.hash("red"));
-hashTest.set("rama", "god");
-hashTest.set("red", "yellow");
-hashTest.set("sita", "goddess");
-
-console.log(hashTest.buckets);
-console.log(hashTest.has("sita"));
-
