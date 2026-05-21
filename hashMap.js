@@ -5,7 +5,7 @@ class Node {
     }
 }
 
-class HashMap {
+export class HashMap {
     constructor() {
         this.loadFactor = 0.75;
         this.capacity = 16;
@@ -27,6 +27,10 @@ class HashMap {
     }
 
     set(key, value) {
+        if((this.size + 1) / this.capacity > this.loadFactor) {
+            this.resize();
+        }
+
         const index = this.hash(key);
         if(index < 0 || index >= this.buckets.length) {
             throw new Error("Trying to access index out of bounds");
@@ -164,5 +168,24 @@ class HashMap {
         }
 
         return entriesArray
+    }
+
+    resize() {
+        const oldBuckets = this.buckets;
+
+        this.capacity *= 2;
+
+        this.buckets = new Array(this.capacity).fill(null);
+
+        this.size = 0;
+
+        for(let i = 0; i < oldBuckets.length; i++) {
+            let current = oldBuckets[i];
+
+            while (current !== null) {
+                this.set(current.value.key, current.value.value);
+                current = current.next;
+            }
+        }
     }
 }
